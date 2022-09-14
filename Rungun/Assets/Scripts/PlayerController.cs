@@ -5,10 +5,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
     public float walkSpeed;
     public float jumpHeight;
+    public float degree;
+    public float deceleration;
+    public float maxSpeed;
     public LayerMask mask;
     private float moveVelocity;
     Rigidbody2D rb;
     private bool _canJump;
+    private float degreeVelocity;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,16 +27,42 @@ public class PlayerController : MonoBehaviour {
         if(Input.GetAxis("Jump") > 0 && IsGrounded() && _canJump) {
             rb.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
             _canJump = false;
-            Invoke("setCanJump", 0.8f);
+            Invoke("setCanJump", 0.5f);
         }
 
-        moveVelocity = 0;
+        if(!IsGrounded()){
+            if(Input.GetAxis("Vertical") != 0){
+                if(Input.GetAxis("Vertical") > 0){
+                    degreeVelocity -= degree;
+                } else {
+                    degreeVelocity += degree;
+                }
+                transform.eulerAngles = Vector3.forward * degreeVelocity;
+            }
+        }
+
         if(Input.GetAxis("Horizontal") != 0){
             if(Input.GetAxis("Horizontal") > 0){
-                moveVelocity += walkSpeed;
+                if(moveVelocity >= maxSpeed){
+                    moveVelocity = maxSpeed;
+                } else {
+                    moveVelocity += walkSpeed;
+                }
             } else {
-                moveVelocity -= walkSpeed;
+                if(moveVelocity <= -(maxSpeed)){
+                    moveVelocity = -(maxSpeed);
+                } else {
+                    moveVelocity -= walkSpeed;
+                }
+
             }
+        }
+        if(moveVelocity > 2){
+            moveVelocity -= deceleration;
+        } else if (moveVelocity < -2){
+            moveVelocity += deceleration;
+        } else {
+            moveVelocity = 0;
         }
         rb.velocity = new Vector2(moveVelocity, rb.velocity.y);
     }
