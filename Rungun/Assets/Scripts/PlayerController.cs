@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;  
 
 public class PlayerController : MonoBehaviour {
+    public Object player;
     public float walkSpeed;
     public float jumpHeight;
     public float degree;
-    public float deceleration;
     public float maxSpeed;
     public LayerMask mask;
     private float moveVelocity;
     Rigidbody2D rb;
     private bool _canJump;
     private float degreeVelocity;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +43,8 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
+        moveVelocity = 0;
+
         if(Input.GetAxis("Horizontal") != 0){
             if(Input.GetAxis("Horizontal") > 0){
                 if(moveVelocity >= maxSpeed){
@@ -57,14 +61,13 @@ public class PlayerController : MonoBehaviour {
 
             }
         }
-        if(moveVelocity > 2){
-            moveVelocity -= deceleration;
-        } else if (moveVelocity < -2){
-            moveVelocity += deceleration;
-        } else {
-            moveVelocity = 0;
-        }
+       
         rb.velocity = new Vector2(moveVelocity, rb.velocity.y);
+        if(rb.transform.position.y < -7){
+            print("MORRI");
+            Destroy(player);
+            SceneManager.LoadScene("DeathMenu");  
+        }
     }
 
     void setCanJump() {
