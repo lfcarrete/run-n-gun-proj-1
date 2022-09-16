@@ -14,18 +14,22 @@ public class PlayerController : MonoBehaviour {
     Rigidbody2D rb;
     private bool _canJump;
     private float degreeVelocity;
-    
+    private bool _canMove;
+    private Vector3 lastVelocity;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent <Rigidbody2D> ();
         _canJump = true;
+        _canMove = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        lastVelocity = rb.velocity;
+
         if(Input.GetAxis("Jump") > 0 && IsGrounded() && _canJump) {
             rb.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
             _canJump = false;
@@ -58,13 +62,14 @@ public class PlayerController : MonoBehaviour {
                 } else {
                     moveVelocity -= walkSpeed;
                 }
-
             }
         }
-       
-        rb.velocity = new Vector2(moveVelocity, rb.velocity.y);
-        if(rb.transform.position.y < -7){
-            print("MORRI");
+        if(_canMove){
+            rb.velocity = new Vector2(moveVelocity, rb.velocity.y);
+        } else {
+            Invoke("setCanMove", 0.5f);
+        }
+        if(rb.transform.position.y < -30){
             Destroy(player);
             SceneManager.LoadScene("DeathMenu");  
         }
@@ -74,8 +79,23 @@ public class PlayerController : MonoBehaviour {
         this._canJump = true;
     }
 
+    void setCanMove() {
+        this._canMove = true;
+    }
+
     private bool IsGrounded() {
        var groundCheck = Physics2D.Raycast(transform.position, Vector2.down, 0.7f, mask);
        return groundCheck.collider != null && groundCheck.collider.CompareTag("Ground");
+    }
+
+    void OnCollisionEnter2D(Collision2D col) {
+        if(col.gameObject.tag == "Wall") {
+            this._canMove = false;
+            var speed = lastVelocity.magnitude;
+            var direction = Vector3.Reflect(lastVelocity.normalized, col.contacts[0].normal);
+            print(rb.velocity);
+            rb.velocity = direction*Mathf.Max(speed*2, 0f);
+            print(rb.velocity);
+        }
     }
 }
