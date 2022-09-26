@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
     private float degreeVelocity;
     private bool _canMove;
     private Vector3 lastVelocity;
+    private Animator anim;
 
     // Start is called before the first frame update
     void Start()
@@ -23,13 +24,16 @@ public class PlayerController : MonoBehaviour {
         rb = GetComponent <Rigidbody2D> ();
         _canJump = true;
         _canMove = true;
+        anim = gameObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
         lastVelocity = rb.velocity;
-
+        anim.SetBool("runRight", false);
+        anim.SetBool("runLeft", false);
+    
         if(Input.GetAxis("Jump") > 0 && IsGrounded() && _canJump) {
             rb.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
             _canJump = false;
@@ -37,6 +41,7 @@ public class PlayerController : MonoBehaviour {
         }
 
         if(!IsGrounded()){
+            anim.SetBool("Jump", true);
             if(Input.GetAxis("Vertical") != 0){
                 if(Input.GetAxis("Vertical") > 0){
                     degreeVelocity -= degree;
@@ -45,18 +50,26 @@ public class PlayerController : MonoBehaviour {
                 }
                 transform.eulerAngles = Vector3.forward * degreeVelocity;
             }
+        } else {
+            anim.SetBool("Jump", false);
         }
 
         moveVelocity = 0;
 
         if(Input.GetAxis("Horizontal") != 0){
             if(Input.GetAxis("Horizontal") > 0){
+                if(_canJump){
+                    anim.SetBool("runRight", true);
+                }
                 if(moveVelocity >= maxSpeed){
                     moveVelocity = maxSpeed;
                 } else {
                     moveVelocity += walkSpeed;
                 }
             } else {
+                if(_canJump){
+                    anim.SetBool("runLeft", true);
+                }
                 if(moveVelocity <= -(maxSpeed)){
                     moveVelocity = -(maxSpeed);
                 } else {
@@ -90,6 +103,7 @@ public class PlayerController : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D col) {
         if(col.gameObject.tag == "Wall") {
+            //print(col.gameObject.bounds);
             this._canMove = false;
             var speed = lastVelocity.magnitude;
             var direction = Vector3.Reflect(lastVelocity.normalized, col.contacts[0].normal);

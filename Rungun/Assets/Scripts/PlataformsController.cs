@@ -11,11 +11,12 @@ public class PlataformsController : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     public Sprite newSprite;
     public Sprite newSprite2;
+    private bool _destroyed;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent <Rigidbody2D> ();
-
+        _destroyed = false;
         player = GameObject.FindWithTag("Player");
     }
 
@@ -26,10 +27,12 @@ public class PlataformsController : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D col){
-        Invoke("DestroyPlatform", timeDestruction);
-        Invoke("ChangeSprite", timeDestruction/3);
-        Invoke("ChangeSpriteAgain", timeDestruction*2/3);
-
+        if(!this._destroyed){
+            this._destroyed = true;
+            Invoke("DestroyPlatform", timeDestruction);
+            Invoke("ChangeSprite", timeDestruction/3);
+            Invoke("ChangeSpriteAgain", timeDestruction*2/3);
+        }
     } 
 
     void DestroyPlatform(){
