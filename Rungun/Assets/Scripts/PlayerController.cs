@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour {
     private bool _canMove;
     private Vector3 lastVelocity;
     private Animator anim;
+    private string _currentScene;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour {
         _canJump = true;
         _canMove = true;
         anim = gameObject.GetComponent<Animator>();
+        _currentScene = SceneManager.GetActiveScene().name;
     }
 
     // Update is called once per frame
@@ -84,7 +86,11 @@ public class PlayerController : MonoBehaviour {
         }
         if(rb.transform.position.y < -30){
             Destroy(player);
-            SceneManager.LoadScene("DeathMenu");  
+            if(_currentScene == "Tutorial"){
+                SceneManager.LoadScene("Tutorial");
+            } else {
+                SceneManager.LoadScene("DeathMenu");
+            }
         }
     }
 
@@ -102,8 +108,6 @@ public class PlayerController : MonoBehaviour {
     }
 
     void OnCollisionEnter2D(Collision2D col) {
-
-     
         if(col.gameObject.tag == "WallBottom") {
             //print(col.gameObject.bounds);
             this._canMove = false;
@@ -112,7 +116,14 @@ public class PlayerController : MonoBehaviour {
             print(rb.velocity);
             rb.velocity = direction*Mathf.Max(speed*2, 0f);
             print(rb.velocity);
-        }
+        } 
 
     }
+
+    void OnTriggerEnter2D(Collider2D col){
+        if(col.gameObject.tag == "Finish"){
+            Destroy(player);
+            SceneManager.LoadScene("VictoryMenu");
+        }
+    } 
 }
