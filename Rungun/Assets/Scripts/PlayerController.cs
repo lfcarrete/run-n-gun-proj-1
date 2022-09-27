@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     void OnCollisionEnter2D(Collision2D col) {
-        if(col.gameObject.tag == "WallBottom") {
+        if(col.gameObject.tag == "Wall") {
             //print(col.gameObject.bounds);
             this._canMove = false;
             var speed = lastVelocity.magnitude;
