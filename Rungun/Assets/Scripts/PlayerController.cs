@@ -123,7 +123,11 @@ public class PlayerController : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D col){
         if(col.gameObject.tag == "Finish"){
             Destroy(player);
-            SceneManager.LoadScene("VictoryMenu");
+            if(_currentScene == "Tutorial"){
+                SceneManager.LoadScene("Menu");
+            } else {
+                SceneManager.LoadScene("VictoryMenu");
+            }
         }
     } 
 }
