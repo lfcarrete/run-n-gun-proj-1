@@ -12,12 +12,16 @@ public class PlataformsController : MonoBehaviour
     public Sprite newSprite;
     public Sprite newSprite2;
     private bool _destroyed;
+    public AudioSource audioSource;
+    public AudioClip clip;
+    public float volume=0.5f;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent <Rigidbody2D> ();
         _destroyed = false;
         player = GameObject.FindWithTag("Player");
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -29,6 +33,7 @@ public class PlataformsController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col){
         if(!this._destroyed){
             this._destroyed = true;
+            audioSource.PlayOneShot(clip, volume);
             Invoke("DestroyPlatform", timeDestruction);
             Invoke("ChangeSprite", timeDestruction/3);
             Invoke("ChangeSpriteAgain", timeDestruction*2/3);
