@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; 
 
 public class PlataformsController : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class PlataformsController : MonoBehaviour
     private bool _destroyed;
     public AudioSource audioSource;
     public AudioClip clip;
-    public float volume=0.5f;
+    public Slider volumeSlider;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -27,13 +29,15 @@ public class PlataformsController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(audioSource != null){
+            audioSource.volume = volumeSlider.value*(float)0.5;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D col){
         if(!this._destroyed){
             this._destroyed = true;
-            audioSource.PlayOneShot(clip, volume);
+            audioSource.PlayOneShot(clip);
             Invoke("DestroyPlatform", timeDestruction);
             Invoke("ChangeSprite", timeDestruction/3);
             Invoke("ChangeSpriteAgain", timeDestruction*2/3);

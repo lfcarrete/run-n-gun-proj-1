@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; 
 
 public class OpenDoor : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class OpenDoor : MonoBehaviour
     public Object wall;
     public AudioSource audioSource;
     public AudioClip clip;
+    public Slider volumeSlider;
 
     public float volume=0.5f;
     // Start is called before the first frame update
@@ -23,10 +25,13 @@ public class OpenDoor : MonoBehaviour
         if(anim.GetCurrentAnimatorStateInfo(0).IsName("End")){
             Destroy(wall);
         }
+        if(audioSource != null){
+            audioSource.volume = volumeSlider.value;
+        }
     }
     void OnCollisionEnter2D(Collision2D col) {
         if(col.gameObject.tag == "Player") {
-            audioSource.PlayOneShot(clip, volume);
+            audioSource.PlayOneShot(clip);
             anim.SetBool("Open", true);
         }
     }

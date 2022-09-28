@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;  
+using UnityEngine.SceneManagement;
+using UnityEngine.UI; 
 
 public class PlayerController : MonoBehaviour {
     public Object player;
@@ -18,13 +19,15 @@ public class PlayerController : MonoBehaviour {
     private Vector3 lastVelocity;
     private Animator anim;
     private string _currentScene;
+    private bool finished;
     
     public AudioSource audioSource;
+    public AudioSource audioCamera;
     public AudioClip clipDeath;
     public AudioClip clipBounce;
     public AudioClip clipJump;
     public AudioClip clipWin;
-    public float volume=0.5f;
+    public Slider volumeSlider;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +38,7 @@ public class PlayerController : MonoBehaviour {
         _canMove = true;
         anim = gameObject.GetComponent<Animator>();
         _currentScene = SceneManager.GetActiveScene().name;
+        finished = false;
     }
 
     // Update is called once per frame
@@ -43,10 +47,14 @@ public class PlayerController : MonoBehaviour {
         lastVelocity = rb.velocity;
         anim.SetBool("runRight", false);
         anim.SetBool("runLeft", false);
-    
-        if(Input.GetAxis("Jump") > 0 && IsGrounded() && _canJump) {
+
+        if(audioSource != null){
+            audioSource.volume = volumeSlider.value*(float)0.5;
+        }
+
+        if(Input.GetAxis("Jump") > 0 && IsGrounded() && _canJump && !finished) {
             rb.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
-            audioSource.PlayOneShot(clipJump, volume);
+            audioSource.PlayOneShot(clipJump);
             _canJump = false;
             Invoke("setCanJump", 0.5f);
         }
@@ -67,7 +75,7 @@ public class PlayerController : MonoBehaviour {
 
         moveVelocity = 0;
 
-        if(Input.GetAxis("Horizontal") != 0){
+        if(Input.GetAxis("Horizontal") != 0 && !finished){
             if(Input.GetAxis("Horizontal") > 0){
                 if(_canJump){
                     anim.SetBool("runRight", true);
@@ -94,7 +102,7 @@ public class PlayerController : MonoBehaviour {
             Invoke("setCanMove", 0.5f);
         }
         if(rb.transform.position.y < -20){
-            audioSource.PlayOneShot(clipDeath, volume);
+            audioSource.PlayOneShot(clipDeath);
             Invoke("changeScene", clipDeath.length + 0.3f);
         }
     }
@@ -124,7 +132,7 @@ public class PlayerController : MonoBehaviour {
     void OnCollisionEnter2D(Collision2D col) {
 
         if(col.gameObject.tag == "Wall") {
-            audioSource.PlayOneShot(clipBounce, volume);
+            audioSource.PlayOneShot(clipBounce);
             //print(col.gameObject.bounds);
             this._canMove = false;
             var speed = lastVelocity.magnitude;
@@ -138,7 +146,10 @@ public class PlayerController : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D col){
         if(col.gameObject.tag == "Finish"){
-            audioSource.PlayOneShot(clipWin, volume);
+            finished = true;
+            Destroy(audioCamera);
+
+            audioSource.PlayOneShot(clipWin);
             Invoke("changeSceneEnd", clipWin.length + 0.3f);
         }
     } 
